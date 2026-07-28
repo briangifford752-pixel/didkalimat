@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق تعلم الأفعال - 50 فعل</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .nav-btn {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .app-section {
+            display: none;
+        }
+
+        .app-section.active {
+            display: block;
+        }
+
+        /* Verbs Section */
+        .controls-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .controls-bar {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .search-input {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 15px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 350px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .categories-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn.active {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .verb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .verb-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .verb-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .verb-name-fr {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .group-tag {
+            font-size: 0.75rem;
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .card-details-preview {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 25px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        .info-section {
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.95rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span {
+            color: var(--text-muted);
+        }
+
+        /* Quiz & Typing Sections */
+        .quiz-container, .typing-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quiz-option-btn {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .quiz-option-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        .quiz-option-btn.correct {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: var(--success);
+            color: #4ade80;
+        }
+
+        .quiz-option-btn.wrong {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+            color: #f87171;
+        }
+
+        .action-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .score-display {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>قاموس الأفعال الفرنسية والإنجليزية</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">قاعدة بيانات شاملة تحتوي على 50 فعلاً مع التصريفات والمعاني</p>
+        <div class="nav-container">
+            <button class="nav-btn active" onclick="switchSection('verbs', this)">القاموس والأفعال</button>
+            <button class="nav-btn" onclick="switchSection('quiz', this)">اختبار المعاني</button>
+            <button class="nav-btn" onclick="switchSection('typing', this)">تحدي الكتابة والإملاء</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Verbs Section -->
+        <section id="verbsSection" class="app-section active">
+            <div class="controls-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="ابحث بالعربية، الفرنسية، أو الإنجليزية..." oninput="filterVerbs()">
+                <div class="categories-tabs">
+                    <button class="tab-btn active" onclick="setCategory('all', this)">الكل (50)</button>
+                    <button class="tab-btn" onclick="setCategory('movement', this)">الحركة</button>
+                    <button class="tab-btn" onclick="setCategory('mind', this)">التفكير والإدراك</button>
+                    <button class="tab-btn" onclick="setCategory('communication', this)">التواصل</button>
+                    <button class="tab-btn" onclick="setCategory('daily', this)">أفعال يومية</button>
+                </div>
+            </div>
+            <div id="verbGrid" class="verb-grid">
+                <!-- Dynamic Content -->
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quizSection" class="app-section">
+            <div class="quiz-container">
+                <div id="quizScore" class="score-display">النقاط: 0</div>
+                <h3 id="quizQuestion" style="font-size: 1.2rem; margin-bottom: 15px;">جاري تحميل السؤال...</h3>
+                <div id="quizOptions" class="quiz-options"></div>
+                <button id="nextQuizBtn" class="action-btn" style="display: none;" onclick="loadNewQuestion()">السؤال الموالي</button>
+            </div>
+        </section>
+
+        <!-- Typing Section -->
+        <section id="typingSection" class="app-section">
+            <div class="typing-container">
+                <div id="typingScore" class="score-display">النقاط الإملائية: 0</div>
+                <h3 id="typingPrompt" style="font-size: 1.2rem; margin-bottom: 15px;">جاري التحميل...</h3>
+                <input type="text" id="typingInput" class="search-input" style="max-width: 100%; text-align: center; margin-bottom: 10px;" placeholder="اكتب الفعل بالفرنسية هنا واضغط Enter..." onkeydown="checkTyping(event)">
+                <p id="typingFeedback" style="font-weight: bold; min-height: 25px;"></p>
+                <button id="nextTypingBtn" class="action-btn" style="display: none;" onclick="loadNewTypingChallenge()">التحدي الموالي</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal details -->
+    <div id="verbModal" class="modal-overlay" onclick="closeModalOnOutside(event)">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle">عنوان الفعل</h2>
+                <span id="modalBadge" class="group-tag">المجموعة</span>
+            </div>
+            <div id="modalTranslations" class="info-section"></div>
+            <div id="modalConjugationFr" class="info-section"></div>
+            <div id="modalConjugationEn" class="info-section"></div>
+            <div id="modalForms" class="info-section"></div>
+            <div class="info-section">
+                <div style="font-weight: 600; color: var(--accent); margin-bottom: 6px;">مثال توضيحي (Example):</div>
+                <p id="modalExample" style="font-size: 0.950rem; color: var(--text-main);"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const verbsDatabase = [
+            // الأفعال 30 الأولى الأصلية
+            { 
+                id: 1, category: "movement", group: "المجموعة الأولى", french: "Aller", english: "To go", arabic: "ذهب / يذهب", 
+                translations: { "العربية": "ذهب / يذهب", "الفرنسية": "Aller", "الإنجليزية": "To go" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je vais, Tu vas, Il/Elle va, Nous allons, Vous allez, Ils/Elles vont", 
+                    "Passé Composé (الماضي)": "Je suis allé(e), Tu es allé(e), Il est allé, Nous sommes allé(e)s, Vous êtes allé(e)s, Ils sont allés", 
+                    "Futur (المستقبل)": "J'irai, Tu iras, Il ira, Nous irons, Vous irez, Ils iront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I go, You go, He/She/It goes, We go, You go, They go", 
+                    "Past Simple (الماضي البسيط)": "I went, You went, He/She/It went, We went, You went, They went", 
+                    "Future (المستقبل)": "I will go, You will go, He/She/It will go, We will go, You will go, They will go" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne vais pas | EN: I don't go (أنا لا أذهب)",
+                    "السؤال (Interrogation)": "FR: Vas-tu ? | EN: Do you go? (هل تذهب؟)",
+                    "الأمر (Impératif)": "FR: Va ! | EN: Go! (اذهب!)"
+                },
+                example: "مثال (FR): Je vais au travail. | (EN): I go to work." 
+            },
+            { 
+                id: 2, category: "mind", group: "المجموعة الأولى", french: "Aimer", english: "To like / To love", arabic: "أحب / يحب", 
+                translations: { "العربية": "أحب / يحب", "الفرنسية": "Aimer", "الإنجليزية": "To like / To love" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'aime, Tu aimes, Il/Elle aime, Nous aimons, Vous aimez, Ils/Elles aiment", 
+                    "Passé Composé (الماضي)": "J'ai aimé, Tu as aimé, Il a aimé, Nous avons aimé, Vous avez aimé, Ils ont aimé", 
+                    "Futur (المستقبل)": "J'aimerai, Tu aimeras, Il aimera, Nous aimerons, Vous aimerez, Ils aimeront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I like, You like, He/She/It likes, We like, You like, They like", 
+                    "Past Simple (الماضي البسيط)": "I liked, You liked, He/She/It liked, We liked, You liked, They liked", 
+                    "Future (المستقبل)": "I will like, You will like, He/She/It will like, We will like, You will like, They will like" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je n'aime pas | EN: I don't like (أنا لا أحب)",
+                    "السؤال (Interrogation)": "FR: Aimes-tu ? | EN: Do you like? (هل تحب؟)",
+                    "الأمر (Impératif)": "FR: Aime ! | EN: Like! (أحب!)"
+                },
+                example: "مثال (FR): J'aime le chocolat. | (EN): I like chocolate." 
+            },
+            { 
+                id: 3, category: "communication", group: "المجموعة الثالثة", french: "Avoir", english: "To have", arabic: "تملك / لديه", 
+                translations: { "العربية": "تملك / لديه", "الفرنسية": "Avoir", "الإنجليزية": "To have" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'ai, Tu as, Il/Elle a, Nous avons, Vous avez, Ils/Elles ont", 
+                    "Passé Composé (الماضي)": "J'ai eu, Tu as eu, Il a eu, Nous avons eu, Vous avez eu, Ils ont eu", 
+                    "Futur (المستقبل)": "J'aurai, Tu auras, Il aura, Nous aurons, Vous aurez, Ils auront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I have, You have, He/She/It has, We have, You have, They have", 
+                    "Past Simple (الماضي البسيط)": "I had, You had, He/She/It had, We had, You had, They had", 
+                    "Future (المستقبل)": "I will have, You will have, He/She/It will have, We will have, You will have, They will have" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je n'ai pas | EN: I don't have (ليس لدي)",
+                    "السؤال (Interrogation)": "FR: As-tu ? | EN: Do you have? (هل لديك؟)",
+                    "الأمر (Impératif)": "FR: Aie ! | EN: Have! (املك!)"
+                },
+                example: "مثال (FR): J'ai une voiture. | (EN): I have a car." 
+            },
+            { 
+                id: 4, category: "communication", group: "المجموعة الثالثة", french: "Être", english: "To be", arabic: "كان / يكون", 
+                translations: { "العربية": "كان / يكون", "الفرنسية": "Être", "الإنجليزية": "To be" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je suis, Tu es, Il/Elle est, Nous sommes, Vous êtes, Ils/Elles sont", 
+                    "Passé Composé (الماضي)": "J'ai été, Tu as été, Il a été, Nous avons été, Vous avez été, Ils ont été", 
+                    "Futur (المستقبل)": "Je serai, Tu seras, Il sera, Nous serons, Vous serez, Ils seront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I am, You are, He/She/It is, We are, You are, They are", 
+                    "Past Simple (الماضي البسيط)": "I was, You were, He/She/It was, We were, You were, They were", 
+                    "Future (المستقبل)": "I will be, You will be, He/She/It will be, We will be, You will be, They will be" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne suis pas | EN: I am not (أنا لست)",
+                    "السؤال (Interrogation)": "FR: Es-tu ? | EN: Are you? (هل أنت؟)",
+                    "الأمر (Impératif)": "FR: Sois ! | EN: Be! (كن!)"
+                },
+                example: "مثال (FR): Je suis heureux. | (EN): I am happy." 
+            },
+            { 
+                id: 5, category: "daily", group: "المجموعة الثالثة", french: "Faire", english: "To do / To make", arabic: "فعل / يصنع", 
+                translations: { "العربية": "فعل / يصنع", "الفرنسية": "Faire", "الإنجليزية": "To do / To make" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je fais, Tu fais, Il/Elle fait, Nous faisons, Vous faites, Ils/Elles font", 
+                    "Passé Composé (الماضي)": "J'ai fait, Tu as fait, Il a fait, Nous avons fait, Vous avez fait, Ils ont fait", 
+                    "Futur (المستقبل)": "Je ferai, Tu feras, Il fera, Nous ferons, Vous ferez, Ils feront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I do, You do, He/She/It does, We do, You do, They do", 
+                    "Past Simple (الماضي البسيط)": "I did, You did, He/She/It did, We did, You did, They did", 
+                    "Future (المستقبل)": "I will do, You will do, He/She/It will do, We will do, You will do, They will do" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne fais pas | EN: I don't do (أنا لا أفعله)",
+                    "السؤال (Interrogation)": "FR: Fais-tu ? | EN: Do you do? (هل تفعل؟)",
+                    "الأمر (Impératif)": "FR: Fais ! | EN: Do! (افعل!)"
+                },
+                example: "مثال (FR): Je fais mes devoirs. | (EN): I do my homework." 
+            },
+            { 
+                id: 6, category: "communication", group: "المجموعة الثالثة", french: "Dire", english: "To say", arabic: "قال / يقول", 
+                translations: { "العربية": "قال / يقول", "الفرنسية": "Dire", "الإنجليزية": "To say" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je dis, Tu dis, Il/Elle dit, Nous disons, Vous dites, Ils/Elles disent", 
+                    "Passé Composé (الماضي)": "J'ai dit, Tu as dit, Il a dit, Nous avons dit, Vous avez dit, Ils ont dit", 
+                    "Futur (المستقبل)": "Je dirai, Tu diras, Il dira, Nous dirons, Vous direz, Ils diront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I say, You say, He/She/It says, We say, You say, They say", 
+                    "Past Simple (الماضي البسيط)": "I said, You said, He/She/It said, We said, You said, They said", 
+                    "Future (المستقبل)": "I will say, You will say, He/She/It will say, We will say, You will say, They will say" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne dis pas | EN: I don't say (أنا لا أقول)",
+                    "السؤال (Interrogation)": "FR: Dis-tu ? | EN: Do you say? (هل تقول؟)",
+                    "الأمر (Impératif)": "FR: Dis ! | EN: Say! (قل!)"
+                },
+                example: "مثال (FR): Je dis la vérité. | (EN): I say the truth." 
+            },
+            { 
+                id: 7, category: "mind", group: "المجموعة الثالثة", french: "Pouvoir", english: "To can / To be able to", arabic: "استطاع / يقدر", 
+                translations: { "العربية": "استطاع / يقدر", "الفرنسية": "Pouvoir", "الإنجليزية": "To can" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je peux, Tu peux, Il/Elle peut, Nous pouvons, Vous pouvez, Ils/Elles peuvent", 
+                    "Passé Composé (الماضي)": "J'ai pu, Tu as pu, Il a pu, Nous avons pu, Vous avez pu, Ils ont pu", 
+                    "Futur (المستقبل)": "Je pourrai, Tu pourras, Il pourra, Nous pourrons, Vous pourrez, Ils pourront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I can, You can, He/She/It can, We can, You can, They can", 
+                    "Past Simple (الماضي البسيط)": "I could, You could, He/She/It could, We could, You could, They could", 
+                    "Future (المستقبل)": "I will be able to, You will be able to, He/She/It will be able to, We will be able to, You will be able to, They will be able to" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne peux pas | EN: I cannot (لا أستطيع)",
+                    "السؤال (Interrogation)": "FR: Peux-tu ? | EN: Can you? (هل تستطيع؟)",
+                    "الأمر (Impératif)": "FR: غير متوفر | EN: غير متوفر"
+                },
+                example: "مثال (FR): Je peux le faire. | (EN): I can do it." 
+            },
+            { 
+                id: 8, category: "mind", group: "المجموعة الثالثة", french: "Vouloir", english: "To want", arabic: "أراد / يريد", 
+                translations: { "العربية": "أراد / يريد", "الفرنسية": "Vouloir", "الإنجليزية": "To want" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je veux, Tu veux, Il/Elle veut, Nous voulons, Vous voulez, Ils/Elles veulent", 
+                    "Passé Composé (الماضي)": "J'ai voulu, Tu as voulu, Il a voulu, Nous avons voulu, Vous avez voulu, Ils ont voulu", 
+                    "Futur (المستقبل)": "Je voudrai, Tu voudras, Il voudra, Nous voudrons, Vous voudrez, Ils voudront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I want, You want, He/She/It wants, We want, You want, They want", 
+                    "Past Simple (الماضي البسيط)": "I wanted, You wanted, He/She/It wanted, We wanted, You wanted, They wanted", 
+                    "Future (المستقبل)": "I will want, You will want, He/She/It will want, We will want, You will want, They will want" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne veux pas | EN: I don't want (لا أريد)",
+                    "السؤال (Interrogation)": "FR: Veux-tu ? | EN: Do you want? (هل تريد؟)",
+                    "الأمر (Impératif)": "FR: Veuille ! | EN: Want! (أرِد!)"
+                },
+                example: "مثال (FR): Je veux apprendre. | (EN): I want to learn." 
+            },
+            { 
+                id: 9, category: "mind", group: "المجموعة الثالثة", french: "Savoir", english: "To know", arabic: "عرف / يعلم", 
+                translations: { "العربية": "عرف / يعلم", "الفرنسية": "Savoir", "الإنجليزية": "To know" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je sais, Tu sais, Il/Elle sait, Nous savons, Vous savez, Ils/Elles savent", 
+                    "Passé Composé (الماضي)": "J'ai su, Tu as su, Il a su, Nous avons su, Vous avez su, Ils ont su", 
+                    "Futur (المستقبل)": "Je saurai, Tu sauras, Il saura, Nous saurons, Vous saurez, Ils sauront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I know, You know, He/She/It knows, We know, You know, They know", 
+                    "Past Simple (الماضي البسيط)": "I knew, You knew, He/She/It knew, We knew, You knew, They knew", 
+                    "Future (المستقبل)": "I will know, You will know, He/She/It will know, We will know, You will know, They will know" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne sais pas | EN: I don't know (لا أعرف)",
+                    "السؤال (Interrogation)": "FR: Sais-tu ? | EN: Do you know? (هل تعرف؟)",
+                    "الأمر (Impératif)": "FR: Sache ! | EN: Know! (اعلم!)"
+                },
+                example: "مثال (FR): Je sais la réponse. | (EN): I know the answer." 
+            },
+            { 
+                id: 10, category: "movement", group: "المجموعة الأولى", french: "Voyager", english: "To travel", arabic: "سافر / يسافر", 
+                translations: { "العربية": "سافر / يسافر", "الفرنسية": "Voyager", "الإنجليزية": "To travel" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je voyage, Tu voyages, Il/Elle voyage, Nous voyageons, Vous voyagez, Ils/Elles voyagent", 
+                    "Passé Composé (الماضي)": "J'ai voyagé, Tu as voyagé, Il a voyagé, Nous avons voyagé, Vous avez voyagé, Ils ont voyagé", 
+                    "Futur (المستقبل)": "Je voyagerai, Tu voyageras, Il voyagera, Nous voyagerons, Vous voyagerez, Ils voyageront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I travel, You travel, He/She/It travels, We travel, You travel, They travel", 
+                    "Past Simple (الماضي البسيط)": "I traveled, You traveled, He/She/It traveled, We traveled, You traveled, They traveled", 
+                    "Future (المستقبل)": "I will travel, You will travel, He/She/It will travel, We will travel, You will travel, They will travel" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne voyage pas | EN: I don't travel (أنا لا أسافر)",
+                    "السؤال (Interrogation)": "FR: Voyages-tu ? | EN: Do you travel? (هل تسافر؟)",
+                    "الأمر (Impératif)": "FR: Voyage ! | EN: Travel! (سافر!)"
+                },
+                example: "مثال (FR): Nous voyageons en été. | (EN): We travel in summer." 
+            },
+            { 
+                id: 11, category: "daily", group: "المجموعة الأولى", french: "Manger", english: "To eat", arabic: "أكل / يأكل", 
+                translations: { "العربية": "أكل / يأكل", "الفرنسية": "Manger", "الإنجليزية": "To eat" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je mange, Tu manges, Il/Elle mange, Nous mangeons, Vous mangez, Ils/Elles mangent", 
+                    "Passé Composé (الماضي)": "J'ai mangé, Tu as mangé, Il a mangé, Nous avons mangé, Vous avez mangé, Ils ont mangé", 
+                    "Futur (المستقبل)": "Je mangerai, Tu mangeras, Il mangera, Nous mangerons, Vous mangerez, Ils mangeront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I eat, You eat, He/She/It eats, We eat, You eat, They eat", 
+                    "Past Simple (الماضي البسيط)": "I ate, You ate, He/She/It ate, We ate, You ate, They ate", 
+                    "Future (المستقبل)": "I will eat, You will eat, He/She/It will eat, We will eat, You will eat, They will eat" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne mange pas | EN: I don't eat (لا أكل)",
+                    "السؤال (Interrogation)": "FR: Manges-tu ? | EN: Do you eat? (هل تأكل؟)",
+                    "الأمر (Impératif)": "FR: Mange ! | EN: Eat! (كُلْ!)"
+                },
+                example: "مثال (FR): Je mange une pomme. | (EN): I eat an apple." 
+            },
+            { 
+                id: 12, category: "daily", group: "المجموعة الأولى", french: "Boire", english: "To drink", arabic: "شرب / يشرب", 
+                translations: { "العربية": "شرب / يشرب", "الفرنسية": "Boire", "الإنجليزية": "To drink" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je bois, Tu bois, Il/Elle boit, Nous buvons, Vous buvez, Ils/Elles boivent", 
+                    "Passé Composé (الماضي)": "J'ai bu, Tu as bu, Il a bu, Nous avons bu, Vous avez bu, Ils ont bu", 
+                    "Futur (المستقبل)": "Je boirai, Tu boiras, Il boira, Nous boirons, Vous boirez, Ils boiront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I drink, You drink, He/She/It drinks, We drink, You drink, They drink", 
+                    "Past Simple (الماضي البسيط)": "I drank, You drank, He/She/It drank, We drank, You drank, They drank", 
+                    "Future (المستقبل)": "I will drink, You will drink, He/She/It will drink, We will drink, You will drink, They will drink" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne bois pas | EN: I don't drink (لا أشرب)",
+                    "السؤال (Interrogation)": "FR: Bois-tu ? | EN: Do you drink? (هل تشرب؟)",
+                    "الأمر (Impératif)": "FR: Bois ! | EN: Drink! (اشرب!)"
+                },
+                example: "مثال (FR): Il boit de l'eau. | (EN): He drinks water." 
+            },
+            { 
+                id: 13, category: "daily", group: "المجموعة الأولى", french: "Dormir", english: "To sleep", arabic: "نام / ينام", 
+                translations: { "العربية": "نام / ينام", "الفرنسية": "Dormir", "الإنجليزية": "To sleep" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je dors, Tu dors, Il/Elle dort, Nous dormons, Vous dormez, Ils/Elles dorment", 
+                    "Passé Composé (الماضي)": "J'ai dormi, Tu as dormi, Il a dormi, Nous avons dormi, Vous avez dormi, Ils ont dormi", 
+                    "Futur (المستقبل)": "Je dormirai, Tu dormiras, Il dormira, Nous dormirons, Vous dormirez, Ils dormiront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I sleep, You sleep, He/She/It sleeps, We sleep, You sleep, They sleep", 
+                    "Past Simple (الماضي البسيط)": "I slept, You slept, He/She/It slept, We slept, You slept, They slept", 
+                    "Future (المستقبل)": "I will sleep, You will sleep, He/She/It will sleep, We will sleep, You will sleep, They will sleep" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne dors pas | EN: I don't sleep (لا أنام)",
+                    "السؤال (Interrogation)": "FR: Dors-tu ? | EN: Do you sleep? (هل تنام؟)",
+                    "الأمر (Impératif)": "FR: Dors ! | EN: Sleep! (نَمْ!)"
+                },
+                example: "مثال (FR): Je dors tôt. | (EN): I sleep early." 
+            },
+            { 
+                id: 14, category: "mind", group: "المجموعة الأولى", french: "Comprendre", english: "To understand", arabic: "فهم / يفهم", 
+                translations: { "العربية": "فهم / يفهم", "الفرنسية": "Comprendre", "الإنجليزية": "To understand" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je comprends, Tu comprends, Il/Elle comprend, Nous comprenons, Vous comprenez, Ils/Elles comprennent", 
+                    "Passé Composé (الماضي)": "J'ai compris, Tu as compris, Il a compris, Nous avons compris, Vous avez compris, Ils ont compris", 
+                    "Futur (المستقبل)": "Je comprendrai, Tu comprendras, Il comprendra, Nous comprendrons, Vous comprendrez, Ils comprendront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I understand, You understand, He/She/It understands, We understand, You understand, They understand", 
+                    "Past Simple (الماضي البسيط)": "I understood, You understood, He/She/It understood, We understood, You understood, They understood", 
+                    "Future (المستقبل)": "I will understand, You will understand, He/She/It will understand, We will understand, You will understand, They will understand" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne comprends pas | EN: I don't understand (لا أفهم)",
+                    "السؤال (Interrogation)": "FR: Comprends-tu ? | EN: Do you understand? (هل تفهم؟)",
+                    "الأمر (Impératif)": "FR: Comprends ! | EN: Understand! (اْفهم!)"
+                },
+                example: "مثال (FR): Je comprends la leçon. | (EN): I understand the lesson." 
+            },
+            { 
+                id: 15, category: "mind", group: "المجموعة الأولى", french: "Apprendre", english: "To learn", arabic: "تعلم / يتعلم", 
+                translations: { "العربية": "تعلم / يتعلم", "الفرنسية": "Apprendre", "الإنجليزية": "To learn" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'apprends, Tu apprends, Il/Elle apprend, Nous apprenons, Vous apprenez, Ils/Elles apprennent", 
+                    "Passé Composé (الماضي)": "J'ai appris, Tu as appris, Il a appris, Nous avons appris, Vous avez appris, Ils ont appris", 
+                    "Futur (المستقبل)": "J'apprendrai, Tu apprendras, Il apprendra, Nous apprendrons, Vous apprendrez, Ils apprendront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I learn, You learn, He/She/It learns, We learn, You learn, They learn", 
+                    "Past Simple (الماضي البسيط)": "I learned, You learned, He/She/It learned, We learned, You learned, They learned", 
+                    "Future (المستقبل)": "I will learn, You will learn, He/She/It will learn, We will learn, You will learn, They will learn" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je n'apprends pas | EN: I don't learn (لا أتعلم)",
+                    "السؤال (Interrogation)": "FR: Apprends-tu ? | EN: Do you learn? (هل تتعلم؟)",
+                    "الأمر (Impératif)": "FR: Apprends ! | EN: Learn! (تعلَّم!)"
+                },
+                example: "مثال (FR): J'apprends le français. | (EN): I learn French." 
+            },
+            { 
+                id: 16, category: "communication", group: "المجموعة الأولى", french: "Parler", english: "To speak / To talk", arabic: "تكلم / يتكلم", 
+                translations: { "العربية": "تكلم / يتكلم", "الفرنسية": "Parler", "الإنجليزية": "To speak" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je parle, Tu parles, Il/Elle parle, Nous parlons, Vous parlez, Ils/Elles parlent", 
+                    "Passé Composé (الماضي)": "J'ai parlé, Tu as parlé, Il a parlé, Nous avons parlé, Vous avez parlé, Ils ont parlé", 
+                    "Futur (المستقبل)": "Je parlerai, Tu parleras, Il parlera, Nous parlerons, Vous parlerez, Ils parleront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I speak, You speak, He/She/It speaks, We speak, You speak, They speak", 
+                    "Past Simple (الماضي البسيط)": "I spoke, You spoke, He/She/It spoke, We spoke, You spoke, They spoke", 
+                    "Future (المستقبل)": "I will speak, You will speak, He/She/It will speak, We will speak, You will speak, They will speak" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne parle pas | EN: I don't speak (لا أتكلم)",
+                    "السؤال (Interrogation)": "FR: Parles-tu ? | EN: Do you speak? (هل تتكلم؟)",
+                    "الأمر (Impératif)": "FR: Parle ! | EN: Speak! (تكلم!)"
+                },
+                example: "مثال (FR): Il parle arabe. | (EN): He speaks Arabic." 
+            },
+            { 
+                id: 17, category: "communication", group: "المجموعة الأولى", french: "Écrire", english: "To write", arabic: "كتب / يكتب", 
+                translations: { "العربية": "كتب / يكتب", "الفرنسية": "Écrire", "الإنجليزية": "To write" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'écris, Tu écris, Il/Elle écrit, Nous écrivons, Vous écrivez, Ils/Elles écrivent", 
+                    "Passé Composé (الماضي)": "J'ai écrit, Tu as écrit, Il a écrit, Nous avons écrit, Vous avez écrit, Ils ont écrit", 
+                    "Futur (المستقبل)": "J'écrirai, Tu écriras, Il écrira, Nous écrirons, Vous écrirez, Ils écriront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I write, You write, He/She/It writes, We write, You write, They write", 
+                    "Past Simple (الماضي البسيط)": "I wrote, You wrote, He/She/It wrote, We wrote, You wrote, They wrote", 
+                    "Future (المستقبل)": "I will write, You will write, He/She/It will write, We will write, You will write, They will write" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je n'écris pas | EN: I don't write (لا أكتب)",
+                    "السؤال (Interrogation)": "FR: Écris-tu ? | EN: Do you write? (هل تكتب؟)",
+                    "الأمر (Impératif)": "FR: Écris ! | EN: Write! (اكتب!)"
+                },
+                example: "مثال (FR): J'écris une lettre. | (EN): I write a letter." 
+            },
+            { 
+                id: 18, category: "communication", group: "المجموعة الأولى", french: "Lire", english: "To read", arabic: "قرأ / يقرأ", 
+                translations: { "العربية": "قرأ / يقرأ", "الفرنسية": "Lire", "الإنجليزية": "To read" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je lis, Tu lis, Il/Elle lit, Nous lisons, Vous lisez, Ils/Elles lisent", 
+                    "Passé Composé (الماضي)": "J'ai lu, Tu as lu, Il a lu, Nous avons lu, Vous avez lu, Ils ont lu", 
+                    "Futur (المستقبل)": "Je lirai, Tu liras, Il lira, Nous lirons, Vous lirez, Ils liront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I read, You read, He/She/It reads, We read, You read, They read", 
+                    "Past Simple (الماضي البسيط)": "I read, You read, He/She/It read, We read, You read, They read", 
+                    "Future (المستقبل)": "I will read, You will read, He/She/It will read, We will read, You will read, They will read" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne lis pas | EN: I don't read (لا أقرأ)",
+                    "السؤال (Interrogation)": "FR: Lis-tu ? | EN: Do you read? (هل تقرأ؟)",
+                    "الأمر (Impératif)": "FR: Lis ! | EN: Read! (اقرأ!)"
+                },
+                example: "مثال (FR): Je lis un livre. | (EN): I read a book." 
+            },
+            { 
+                id: 19, category: "movement", group: "المجموعة الأولى", french: "Venir", english: "To come", arabic: "جاء / يجيء", 
+                translations: { "العربية": "جاء / يجيء", "الفرنسية": "Venir", "الإنجليزية": "To come" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je viens, Tu viens, Il/Elle vient, Nous venons, Vous venez, Ils/Elles viennent", 
+                    "Passé Composé (الماضي)": "Je suis venu(e), Tu es venu(e), Il est venu, Nous sommes venu(e)s, Vous êtes venu(e)s, Ils sont venus", 
+                    "Futur (المستقبل)": "Je viendrai, Tu viendras, Il viendra, Nous viendrons, Vous viendrez, Ils viendront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I come, You come, He/She/It comes, We come, You come, They come", 
+                    "Past Simple (الماضي البسيط)": "I came, You came, He/She/It came, We came, You came, They came", 
+                    "Future (المستقبل)": "I will come, You will come, He/She/It will come, We will come, You will come, They will come" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne viens pas | EN: I don't come (لا أجيء)",
+                    "السؤال (Interrogation)": "FR: Viens-tu ? | EN: Do you come? (هل تأتي؟)",
+                    "الأمر (Impératif)": "FR: Viens ! | EN: Come! (تعال!)"
+                },
+                example: "مثال (FR): Tu viens avec moi ? | (EN): Do you come with me?" 
+            },
+            { 
+                id: 20, category: "movement", group: "المجموعة الأولى", french: "Partir", english: "To leave / To depart", arabic: "رحل / يرحل", 
+                translations: { "العربية": "رحل / يرحل", "الفرنسية": "Partir", "الإنجليزية": "To leave" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je pars, Tu pars, Il/Elle part, Nous partons, Vous partez, Ils/Elles partent", 
+                    "Passé Composé (الماضي)": "Je suis parti(e), Tu es parti(e), Il est parti, Nous sommes parti(e)s, Vous êtes parti(e)s, Ils sont partis", 
+                    "Futur (المستقبل)": "Je partirai, Tu partiras, Il partira, Nous partirons, Vous partirez, Ils partiront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I leave, You leave, He/She/It leaves, We leave, You leave, They leave", 
+                    "Past Simple (الماضي البسيط)": "I left, You left, He/She/It left, We left, You left, They left", 
+                    "Future (المستقبل)": "I will leave, You will leave, He/She/It will leave, We will leave, You will leave, They will leave" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne pars pas | EN: I don't leave (لا أرحل)",
+                    "السؤال (Interrogation)": "FR: Pars-tu ? | EN: Do you leave? (هل ترحل؟)",
+                    "الأمر (Impératif)": "FR: Pars ! | EN: Leave! (ارحل!)"
+                },
+                example: "مثال (FR): Il part demain. | (EN): He leaves tomorrow." 
+            },
+            { 
+                id: 21, category: "movement", group: "المجموعة الأولى", french: "Sortir", english: "To go out / To exit", arabic: "خرج / يخرج", 
+                translations: { "العربية": "خرج / يخرج", "الفرنسية": "Sortir", "الإنجليزية": "To go out" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je sors, Tu sors, Il/Elle sort, Nous sortons, Vous sortez, Ils/Elles sortent", 
+                    "Passé Composé (الماضي)": "Je suis sorti(e), Tu es sorti(e), Il est sorti, Nous sommes sorti(e)s, Vous êtes sorti(e)s, Ils sont sortis", 
+                    "Futur (المستقبل)": "Je sortirai, Tu sortiras, Il sortira, Nous sortirons, Vous sortirez, Ils sortiront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I go out, You go out, He/She/It goes out, We go out, You go out, They go out", 
+                    "Past Simple (الماضي البسيط)": "I went out, You went out, He/She/It went out, We went out, You went out, They went out", 
+                    "Future (المستقبل)": "I will go out, You will go out, He/She/It will go out, We will go out, You will go out, They will go out" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne sors pas | EN: I don't go out (لا أخرج)",
+                    "السؤال (Interrogation)": "FR: Sors-tu ? | EN: Do you go out? (هل تخرج؟)",
+                    "الأمر (Impératif)": "FR: Sors ! | EN: Go out! (اخرج!)"
+                },
+                example: "مثال (FR): Je sors ce soir. | (EN): I go out tonight." 
+            },
+            { 
+                id: 22, category: "movement", group: "المجموعة الأولى", french: "Entrer", english: "To enter", arabic: "دخل / يدخل", 
+                translations: { "العربية": "دخل / يدخل", "الفرنسية": "Entrer", "الإنجليزية": "To enter" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'entre, Tu entres, Il/Elle entre, Nous entrons, Vous entrez, Ils/Elles entrent", 
+                    "Passé Composé (الماضي)": "Je suis entré(e), Tu es entré(e), Il est entré, Nous sommes entré(e)s, Vous êtes entré(e)s, Ils sont entrés", 
+                    "Futur (المستقبل)": "J'entrerai, Tu entreras, Il entrera, Nous entrerons, Vous entrerez, Ils entreront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I enter, You enter, He/She/It enters, We enter, You enter, They enter", 
+                    "Past Simple (الماضي البسيط)": "I entered, You entered, He/She/It entered, We entered, You entered, They entered", 
+                    "Future (المستقبل)": "I will enter, You will enter, He/She/It will enter, We will enter, You will enter, They will enter" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je n'entre pas | EN: I don't enter (لا أدخل)",
+                    "السؤال (Interrogation)": "FR: Entres-tu ? | EN: Do you enter? (هل تدخل؟)",
+                    "الأمر (Impératif)": "FR: Entre ! | EN: Enter! (ادخل!)"
+                },
+                example: "مثال (FR): Il entre dans la maison. | (EN): He enters the house." 
+            },
+            { 
+                id: 23, category: "movement", group: "المجموعة الأولى", french: "Arriver", english: "To arrive", arabic: "وصل / يصل", 
+                translations: { "العربية": "وصل / يصل", "الفرنسية": "Arriver", "الإنجليزية": "To arrive" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'arrive, Tu arrives, Il/Elle arrive, Nous arrivons, Vous arrivez, Ils/Elles arrivent", 
+                    "Passé Composé (الماضي)": "Je suis arrivé(e), Tu es arrivé(e), Il est arrivé, Nous sommes arrivé(e)s, Vous êtes arrivé(e)s, Ils sont arrivés", 
+                    "Futur (المستقبل)": "J'arriverai, Tu arriveras, Il arrivera, Nous arriverons, Vous arriverez, Ils arriveront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I arrive, You arrive, He/She/It arrives, We arrive, You arrive, They arrive", 
+                    "Past Simple (الماضي البسيط)": "I arrived, You arrived, He/She/It arrived, We arrived, You arrived, They arrived", 
+                    "Future (المستقبل)": "I will arrive, You will arrive, He/She/It will arrive, We will arrive, You will arrive, They will arrive" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je n'arrive pas | EN: I don't arrive (لا أصل)",
+                    "السؤال (Interrogation)": "FR: Arrives-tu ? | EN: Do you arrive? (هل تصل؟)",
+                    "الأمر (Impératif)": "FR: Arrive ! | EN: Arrive! (صلْ!)"
+                },
+                example: "مثال (FR): Le train arrive. | (EN): The train arrives." 
+            },
+            { 
+                id: 24, category: "daily", group: "المجموعة الأولى", french: "Travailler", english: "To work", arabic: "عمل / يعمل", 
+                translations: { "العربية": "عمل / يعمل", "الفرنسية": "Travailler", "الإنجليزية": "To work" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je travaille, Tu travailles, Il/Elle travaille, Nous travaillons, Vous travaillez, Ils/Elles travaillent", 
+                    "Passé Composé (الماضي)": "J'ai travaillé, Tu as travaillé, Il a travaillé, Nous avons travaillé, Vous avez travaillé, Ils ont travaillé", 
+                    "Futur (المستقبل)": "Je travaillerai, Tu travailleras, Il travaillera, Nous travaillerons, Vous travaillerez, Ils travailleront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I work, You work, He/She/It works, We work, You work, They work", 
+                    "Past Simple (الماضي البسيط)": "I worked, You worked, He/She/It worked, We worked, You worked, They worked", 
+                    "Future (المستقبل)": "I will work, You will work, He/She/It will work, We will work, You will work, They will work" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne travaille pas | EN: I don't work (لا أعمل)",
+                    "السؤال (Interrogation)": "FR: Travailles-tu ? | EN: Do you work? (هل تعمل؟)",
+                    "الأمر (Impératif)": "FR: Travaille ! | EN: Work! (اعمل!)"
+                },
+                example: "مثال (FR): Je travaille dur. | (EN): I work hard." 
+            },
+            { 
+                id: 25, category: "daily", group: "المجموعة الأولى", french: "Jouer", english: "To play", arabic: "لعب / يلعب", 
+                translations: { "العربية": "لعب / يلعب", "الفرنسية": "Jouer", "الإنجليزية": "To play" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je joue, Tu joues, Il/Elle joue, Nous jouons, Vous jouez, Ils/Elles jouent", 
+                    "Passé Composé (الماضي)": "J'ai joué, Tu as joué, Il a joué, Nous avons joué, Vous avez joué, Ils ont joué", 
+                    "Futur (المستقبل)": "Je jouerai, Tu joueras, Il jouera, Nous jouerons, Vous jouerez, Ils joueront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I play, You play, He/She/It plays, We play, You play, They play", 
+                    "Past Simple (الماضي البسيط)": "I played, You played, He/She/It played, We played, You played, They played", 
+                    "Future (المستقبل)": "I will play, You will play, He/She/It will play, We will play, You will play, They will play" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne joue pas | EN: I don't play (لا ألعب)",
+                    "السؤال (Interrogation)": "FR: Joues-tu ? | EN: Do you play? (هل تلعب؟)",
+                    "الأمر (Impératif)": "FR: Joue ! | EN: Play! (العب!)"
+                },
+                example: "مثال (FR): Les enfants jouent. | (EN): Children play." 
+            },
+            { 
+                id: 26, category: "daily", group: "المجموعة الأولى", french: "Regarder", english: "To watch / To look", arabic: "شاهد / ينظر", 
+                translations: { "العربية": "شاهد / ينظر", "الفرنسية": "Regarder", "الإنجليزية": "To watch" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je regarde, Tu regardes, Il/Elle regarde, Nous regardons, Vous regardez, Ils/Elles regardent", 
+                    "Passé Composé (الماضي)": "J'ai regardé, Tu as regardé, Il a regardé, Nous avons regardé, Vous avez regardé, Ils ont regardé", 
+                    "Futur (المستقبل)": "Je regarderai, Tu regarderas, Il regardera, Nous regarderons, Vous regarderez, Ils regarderont" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I watch, You watch, He/She/It watches, We watch, You watch, They watch", 
+                    "Past Simple (الماضي البسيط)": "I watched, You watched, He/She/It watched, We watched, You watched, They watched", 
+                    "Future (المستقبل)": "I will watch, You will watch, He/She/It will watch, We will watch, You will watch, They will watch" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne regarde pas | EN: I don't watch (لا أشاهد)",
+                    "السؤال (Interrogation)": "FR: Regardes-tu ? | EN: Do you watch? (هل تشاهد؟)",
+                    "الأمر (Impératif)": "FR: Regarde ! | EN: Watch! (شاهد!)"
+                },
+                example: "مثال (FR): Je regarde la télé. | (EN): I watch TV." 
+            },
+            { 
+                id: 27, category: "daily", group: "المجموعة الأولى", french: "Écouter", english: "To listen", arabic: "استمع / يستمع", 
+                translations: { "العربية": "استمع / يستمع", "الفرنسية": "Écouter", "الإنجليزية": "To listen" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'écoute, Tu écoutes, Il/Elle écoute, Nous écoutons, Vous écoutez, Ils/Elles écoutent", 
+                    "Passé Composé (الماضي)": "J'ai écouté, Tu as écouté, Il a écouté, Nous avons écouté, Vous avez écouté, Ils ont écouté", 
+                    "Futur (المستقبل)": "J'écouterai, Tu écouteras, Il écoutera, Nous écouterons, Vous écouterez, Ils écouteront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I listen, You listen, He/She/It listens, We listen, You listen, They listen", 
+                    "Past Simple (الماضي البسيط)": "I listened, You listened, He/She/It listened, We listened, You listened, They listened", 
+                    "Future (المستقبل)": "I will listen, You will listen, He/She/It will listen, We will listen, You will listen, They will listen" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je n'écoute pas | EN: I don't listen (لا أستمع)",
+                    "السؤال (Interrogation)": "FR: Écoutes-tu ? | EN: Do you listen? (هل تستمع؟)",
+                    "الأمر (Impératif)": "FR: Écoute ! | EN: Listen! (استمع!)"
+                },
+                example: "مثال (FR): J'écoute de la musique. | (EN): I listen to music." 
+            },
+            { 
+                id: 28, category: "mind", group: "المجموعة الأولى", french: "Penser", english: "To think", arabic: "فكر / يفكر", 
+                translations: { "العربية": "فكر / يفكر", "الفرنسية": "Penser", "الإنجليزية": "To think" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je pense, Tu penses, Il/Elle pense, Nous pensons, Vous pensez, Ils/Elles pensent", 
+                    "Passé Composé (الماضي)": "J'ai pensé, Tu as pensé, Il a pensé, Nous avons pensé, Vous avez pensé, Ils ont pensé", 
+                    "Futur (المستقبل)": "Je penserai, Tu penseras, Il pensera, Nous penserons, Vous penserez, Ils penseront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I think, You think, He/She/It thinks, We think, You think, They think", 
+                    "Past Simple (الماضي البسيط)": "I thought, You thought, He/She/It thought, We thought, You thought, They thought", 
+                    "Future (المستقبل)": "I will think, You will think, He/She/It will think, We will think, You will think, They will think" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne pense pas | EN: I don't think (لا أفكر)",
+                    "السؤال (Interrogation)": "FR: Penses-tu ? | EN: Do you think? (هل تفكر؟)",
+                    "الأمر (Impératif)": "FR: Pense ! | EN: Think! (فكر!)"
+                },
+                example: "مثال (FR): Je pense à toi. | (EN): I think of you." 
+            },
+            { 
+                id: 29, category: "mind", group: "المجموعة الأولى", french: "Chercher", english: "To look for / To search", arabic: "بحث / يبحث", 
+                translations: { "العربية": "بحث / يبحث", "الفرنسية": "Chercher", "الإنجليزية": "To search" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je cherche, Tu cherches, Il/Elle cherche, Nous cherchons, Vous cherchez, Ils/Elles cherchent", 
+                    "Passé Composé (الماضي)": "J'ai cherché, Tu as cherché, Il a cherché, Nous avons cherché, Vous avez cherché, Ils ont cherché", 
+                    "Futur (المستقبل)": "Je chercherai, Tu chercheras, Il cherchera, Nous chercherons, Vous chercherez, Ils chercheront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I search, You search, He/She/It searches, We search, You search, They search", 
+                    "Past Simple (الماضي البسيط)": "I searched, You searched, He/She/It searched, We searched, You searched, They searched", 
+                    "Future (المستقبل)": "I will search, You will search, He/She/It will search, We will search, You will search, They will search" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne cherche pas | EN: I don't search (لا أبحث)",
+                    "السؤال (Interrogation)": "FR: Cherches-tu ? | EN: Do you search? (هل تبحث؟)",
+                    "الأمر (Impératif)": "FR: Cherche ! | EN: Search! (ابحث!)"
+                },
+                example: "مثال (FR): Je cherche mes clés. | (EN): I search for my keys." 
+            },
+            { 
+                id: 30, category: "daily", group: "المجموعة الأولى", french: "Trouver", english: "To find", arabic: "وجَدَ / يجد", 
+                translations: { "العربية": "وجَدَ / يجد", "الفرنسية": "Trouver", "الإنجليزية": "To find" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je trouve, Tu trouves, Il/Elle trouve, Nous trouvons, Vous trouvez, Ils/Elles trouvent", 
+                    "Passé Composé (الماضي)": "J'ai trouvé, Tu as trouvé, Il a trouvé, Nous avons trouvé, Vous avez trouvé, Ils ont trouvé", 
+                    "Futur (المستقبل)": "Je trouverai, Tu trouveras, Il trouvera, Nous trouverons, Vous trouverez, Ils trouveront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I find, You find, He/She/It finds, We find, You find, They find", 
+                    "Past Simple (الماضي البسيط)": "I found, You found, He/She/It found, We found, You found, They found", 
+                    "Future (المستقبل)": "I will find, You will find, He/She/It will find, We will find, You will find, They will find" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne trouve pas | EN: I don't find (لا أجد)",
+                    "السؤال (Interrogation)": "FR: Trouves-tu ? | EN: Do you find? (هل تجد؟)",
+                    "الأمر (Impératif)": "FR: Trouve ! | EN: Find! (جدْ!)"
+                },
+                example: "مثال (FR): J'ai trouvé la solution. | (EN): I found the solution." 
+            },
+
+            // الأفعال 20 الجديدة المضافة (تصبح المجموع 50)
+            { 
+                id: 31, category: "daily", group: "المجموعة الأولى", french: "Acheter", english: "To buy", arabic: "اشتري / يشتري", 
+                translations: { "العربية": "اشتري / يشتري", "الفرنسية": "Acheter", "الإنجليزية": "To buy" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'achète, Tu achètes, Il/Elle achète, Nous achetons, Vous achetez, Ils/Elles achètent", 
+                    "Passé Composé (الماضي)": "J'ai acheté, Tu as acheté, Il a acheté, Nous avons acheté, Vous avez acheté, Ils ont acheté", 
+                    "Futur (المستقبل)": "J'achèterai, Tu achèteras, Il achètera, Nous achèterons, Vous achèterez, Ils achèteront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I buy, You buy, He/She/It buys, We buy, You buy, They buy", 
+                    "Past Simple (الماضي البسيط)": "I bought, You bought, He/She/It bought, We bought, You bought, They bought", 
+                    "Future (المستقبل)": "I will buy, You will buy, He/She/It will buy, We will buy, You will buy, They will buy" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je n'achète pas | EN: I don't buy (لا أشتري)",
+                    "السؤال (Interrogation)": "FR: Achètes-tu ? | EN: Do you buy? (هل تشتري؟)",
+                    "الأمر (Impératif)": "FR: Achète ! | EN: Buy! (اشترِ!)"
+                },
+                example: "مثال (FR): J'achète du pain. | (EN): I buy bread." 
+            },
+            { 
+                id: 32, category: "daily", group: "المجموعة الأولى", french: "Vendre", english: "To sell", arabic: "باع / يبيع", 
+                translations: { "العربية": "باع / يبيع", "الفرنسية": "Vendre", "الإنجليزية": "To sell" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je vends, Tu vends, Il/Elle vend, Nous vendons, Vous vendez, Ils/Elles vendent", 
+                    "Passé Composé (الماضي)": "J'ai vendu, Tu as vendu, Il a vendu, Nous avons vendu, Vous avez vendu, Ils ont vendu", 
+                    "Futur (المستقبل)": "Je vendrai, Tu vendras, Il vendra, Nous vendrons, Vous vendrez, Ils vendront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I sell, You sell, He/She/It sells, We sell, You sell, They sell", 
+                    "Past Simple (الماضي البسيط)": "I sold, You sold, He/She/It sold, We sold, You sold, They sold", 
+                    "Future (المستقبل)": "I will sell, You will sell, He/She/It will sell, We will sell, You will sell, They will sell" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne vends pas | EN: I don't sell (لا أبيع)",
+                    "السؤال (Interrogation)": "FR: Vends-tu ? | EN: Do you sell? (هل تبيع؟)",
+                    "الأمر (Impératif)": "FR: Vends ! | EN: Sell! (بِعْ!)"
+                },
+                example: "مثال (FR): Il vend sa voiture. | (EN): He sells his car." 
+            },
+            { 
+                id: 33, category: "mind", group: "المجموعة الأولى", french: "Oublier", english: "To forget", arabic: "نسي / ينسى", 
+                translations: { "العربية": "نسي / ينسى", "الفرنسية": "Oublier", "الإنجليزية": "To forget" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'oublie, Tu oublies, Il/Elle oublie, Nous oublions, Vous oubliez, Ils/Elles oublient", 
+                    "Passé Composé (الماضي)": "J'ai oublié, Tu as oublié, Il a oublié, Nous avons oublié, Vous avez oublié, Ils ont oublié", 
+                    "Futur (المستقبل)": "J'oublierai, Tu oublieras, Il oubliera, Nous oublierons, Vous oublierez, Ils oublieront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I forget, You forget, He/She/It forgets, We forget, You forget, They forget", 
+                    "Past Simple (الماضي البسيط)": "I forgot, You forgot, He/She/It forgot, We forgot, You forgot, They forgot", 
+                    "Future (المستقبل)": "I will forget, You will forget, He/She/It will forget, We will forget, You will forget, They will forget" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: J'oublie pas | EN: I don't forget (لا أنسى)",
+                    "السؤال (Interrogation)": "FR: Oublies-tu ? | EN: Do you forget? (هل تنسى؟)",
+                    "الأمر (Impératif)": "FR: Oublie ! | EN: Forget! (انسَ!)"
+                },
+                example: "مثال (FR): N'oublie pas tes clés. | (EN): Don't forget your keys." 
+            },
+            { 
+                id: 34, category: "mind", group: "المجموعة الأولى", french: "Se souvenir", english: "To remember", arabic: "تذكر / يتذكر", 
+                translations: { "العربية": "تذكر / يتذكر", "الفرنسية": "Se souvenir", "الإنجليزية": "To remember" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je me souviens, Tu te souviens, Il se souvient, Nous nous souvenons, Vous vous souvenez, Ils se souviennent", 
+                    "Passé Composé (الماضي)": "Je me suis souvenu(e), Tu t'es souvenu(e), Il s'est souvenu, Nous nous sommes souvenu(e)s, Vous vous êtes souvenu(e)s, Ils se sont souvenus", 
+                    "Futur (المستقبل)": "Je me souviendrai, Tu te souviendras, Il se souviendra, Nous nous souviendrons, Vous vous souviendrez, Ils se souviendront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I remember, You remember, He/She/It remembers, We remember, You remember, They remember", 
+                    "Past Simple (الماضي البسيط)": "I remembered, You remembered, He/She/It remembered, We remembered, You remembered, They remembered", 
+                    "Future (المستقبل)": "I will remember, You will remember, He/She/It will remember, We will remember, You will remember, They will remember" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne me souviens pas | EN: I don't remember (لا أتذكر)",
+                    "السؤال (Interrogation)": "FR: Te souviens-tu ? | EN: Do you remember? (هل تتذكر؟)",
+                    "الأمر (Impératif)": "FR: Souviens-toi ! | EN: Remember! (تذكر!)"
+                },
+                example: "مثال (FR): Je me souviens de tout. | (EN): I remember everything." 
+            },
+            { 
+                id: 35, category: "daily", group: "المجموعة الأولى", french: "Fermer", english: "To close", arabic: "أغلق / يغلق", 
+                translations: { "العربية": "أغلق / يغلق", "الفرنسية": "Fermer", "الإنجليزية": "To close" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je ferme, Tu fermes, Il/Elle ferme, Nous fermons, Vous fermez, Ils/Elles ferment", 
+                    "Passé Composé (الماضي)": "J'ai fermé, Tu as fermé, Il a fermé, Nous avons fermé, Vous avez fermé, Ils ont fermé", 
+                    "Futur (المستقبل)": "Je fermerai, Tu fermeras, Il fermera, Nous fermerons, Vous fermerez, Ils fermeront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I close, You close, He/She/It closes, We close, You close, They close", 
+                    "Past Simple (الماضي البسيط)": "I closed, You closed, He/She/It closed, We closed, You closed, They closed", 
+                    "Future (المستقبل)": "I will close, You will close, He/She/It will close, We will close, You will close, They will close" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne ferme pas | EN: I don't close (لا أغلق)",
+                    "السؤال (Interrogation)": "FR: Fermes-tu ? | EN: Do you close? (هل تغلق؟)",
+                    "الأمر (Impératif)": "FR: Ferme ! | EN: Close! (أغلق!)"
+                },
+                example: "مثال (FR): Ferme la porte. | (EN): Close the door." 
+            },
+            { 
+                id: 36, category: "daily", group: "المجموعة الأولى", french: "Ouvrir", english: "To open", arabic: "فتح / يفتح", 
+                translations: { "العربية": "فتح / يفتح", "الفرنسية": "Ouvrir", "الإنجليزية": "To open" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'ouvre, Tu ouvres, Il/Elle ouvre, Nous ouvrons, Vous ouvrez, Ils/Elles ouvrent", 
+                    "Passé Composé (الماضي)": "J'ai ouvert, Tu as ouvert, Il a ouvert, Nous avons ouvert, Vous avez ouvert, Ils ont ouvert", 
+                    "Futur (المستقبل)": "J'ouvrirai, Tu ouvriras, Il ouvrira, Nous ouvrirons, Vous ouvrirez, Ils ouvriront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I open, You open, He/She/It opens, We open, You open, They open", 
+                    "Past Simple (الماضي البسيط)": "I opened, You opened, He/She/It opened, We opened, You opened, They opened", 
+                    "Future (المستقبل)": "I will open, You will open, He/She/It will open, We will open, You will open, They will open" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: J'ouvre pas | EN: I don't open (لا أفتح)",
+                    "السؤال (Interrogation)": "FR: Ouvres-tu ? | EN: Do you open? (هل تفتح؟)",
+                    "الأمر (Impératif)": "FR: Ouvre ! | EN: Open! (افتح!)"
+                },
+                example: "مثال (FR): Ouvre la fenêtre. | (EN): Open the window." 
+            },
+            { 
+                id: 37, category: "movement", group: "المجموعة الأولى", french: "Courir", english: "To run", arabic: "جری / يجري", 
+                translations: { "العربية": "جری / يجري", "الفرنسية": "Courir", "الإنجليزية": "To run" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je cours, Tu cours, Il/Elle court, Nous courons, Vous courez, Ils/Elles courent", 
+                    "Passé Composé (الماضي)": "J'ai couru, Tu as couru, Il a couru, Nous avons couru, Vous avez couru, Ils ont couru", 
+                    "Futur (المستقبل)": "Je courrai, Tu courras, Il courra, Nous courrons, Vous courrez, Ils courront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I run, You run, He/She/It runs, We run, You run, They run", 
+                    "Past Simple (الماضي البسيط)": "I ran, You ran, He/She/It ran, We ran, You ran, They ran", 
+                    "Future (المستقبل)": "I will run, You will run, He/She/It will run, We will run, You will run, They will run" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne cours pas | EN: I don't run (لا أجري)",
+                    "السؤال (Interrogation)": "FR: Cours-tu ? | EN: Do you run? (هل تجري؟)",
+                    "الأمر (Impératif)": "FR: Cours ! | EN: Run! (اجرِ!)"
+                },
+                example: "مثال (FR): Il court vite. | (EN): He runs fast." 
+            },
+            { 
+                id: 38, category: "movement", group: "المجموعة الأولى", french: "Marcher", english: "To walk", arabic: "مشى / يمشي", 
+                translations: { "العربية": "مشى / يمشي", "الفرنسية": "Marcher", "الإنجليزية": "To walk" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je marche, Tu marches, Il/Elle marche, Nous marchons, Vous marchez, Ils/Elles marchent", 
+                    "Passé Composé (الماضي)": "J'ai marché, Tu as marché, Il a marché, Nous avons marché, Vous avez marché, Ils ont marché", 
+                    "Futur (المستقبل)": "Je marcherai, Tu marcheras, Il marchera, Nous marcherons, Vous marcherez, Ils marcheront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I walk, You walk, He/She/It walks, We walk, You walk, They walk", 
+                    "Past Simple (الماضي البسيط)": "I walked, You walked, He/She/It walked, We walked, You walked, They walked", 
+                    "Future (المستقبل)": "I will walk, You will walk, He/She/It will walk, We will walk, You will walk, They will walk" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne marche pas | EN: I don't walk (لا أمشي)",
+                    "السؤال (Interrogation)": "FR: Marches-tu ? | EN: Do you walk? (هل تمشي؟)",
+                    "الأمر (Impératif)": "FR: Marche ! | EN: Walk! (امشِ!)"
+                },
+                example: "مثال (FR): Nous marchons dans la rue. | (EN): We walk in the street." 
+            },
+            { 
+                id: 39, category: "communication", group: "المجموعة الأولى", french: "Demander", english: "To ask", arabic: "سأل / يسأل", 
+                translations: { "العربية": "سأل / يسأل", "الفرنسية": "Demander", "الإنجليزية": "To ask" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je demande, Tu demandes, Il/Elle demande, Nous demandons, Vous demandez, Ils/Elles demandent", 
+                    "Passé Composé (الماضي)": "J'ai demandé, Tu as demandé, Il a demandé, Nous avons demandé, Vous avez demandé, Ils ont demandé", 
+                    "Futur (المستقبل)": "Je demanderai, Tu demanderas, Il demandera, Nous demanderons, Vous demanderez, Ils demanderont" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I ask, You ask, He/She/It asks, We ask, You ask, They ask", 
+                    "Past Simple (الماضي البسيط)": "I asked, You asked, He/She/It asked, We asked, You asked, They asked", 
+                    "Future (المستقبل)": "I will ask, You will ask, He/She/It will ask, We will ask, You will ask, They will ask" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne demande pas | EN: I don't ask (لا أسال)",
+                    "السؤال (Interrogation)": "FR: Demandes-tu ? | EN: Do you ask? (هل تسأل؟)",
+                    "الأمر (Impératif)": "FR: Demande ! | EN: Ask! (اسأل!)"
+                },
+                example: "مثال (FR): Je demande de l'aide. | (EN): I ask for help." 
+            },
+            { 
+                id: 40, category: "communication", group: "المجموعة الأولى", french: "Répondre", english: "To answer / To reply", arabic: "أجاب / يجيب", 
+                translations: { "العربية": "أجاب / يجيب", "الفرنسية": "Répondre", "الإنجليزية": "To answer" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je réponds, Tu réponds, Il/Elle répond, Nous répondons, Vous répondez, Ils/Elles répondent", 
+                    "Passé Composé (الماضي)": "J'ai répondu, Tu as répondu, Il a répondu, Nous avons répondu, Vous avez répondu, Ils ont répondu", 
+                    "Futur (المستقبل)": "Je répondrai, Tu répondras, Il répondra, Nous répondrons, Vous répondrez, Ils répondront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I answer, You answer, He/She/It answers, We answer, You answer, They answer", 
+                    "Past Simple (الماضي البسيط)": "I answered, You answered, He/She/It answered, We answered, You answered, They answered", 
+                    "Future (المستقبل)": "I will answer, You will answer, He/She/It will answer, We will answer, You will answer, They will answer" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne réponds pas | EN: I don't answer (لا أجيب)",
+                    "السؤال (Interrogation)": "FR: Réponds-tu ? | EN: Do you answer? (هل تجيب؟)",
+                    "الأمر (Impératif)": "FR: Réponds ! | EN: Answer! (أجب!)"
+                },
+                example: "مثال (FR): Il répond à la question. | (EN): He answers the question." 
+            },
+            { 
+                id: 41, category: "mind", group: "المجموعة الأولى", french: "Attendre", english: "To wait", arabic: "انتظر / ينتظر", 
+                translations: { "العربية": "انتظر / ينتظر", "الفرنسية": "Attendre", "الإنجليزية": "To wait" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'attends, Tu attends, Il/Elle attend, Nous attendons, Vous attendez, Ils/Elles attendent", 
+                    "Passé Composé (الماضي)": "J'ai attendu, Tu as attendu, Il a attendu, Nous avons attendu, Vous avez attendu, Ils ont attendu", 
+                    "Futur (المستقبل)": "J'attendrai, Tu attendras, Il attendra, Nous attendrons, Vous attendrez, Ils attendront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I wait, You wait, He/She/It waits, We wait, You wait, They wait", 
+                    "Past Simple (الماضي البسيط)": "I waited, You waited, He/She/It waited, We waited, You waited, They waited", 
+                    "Future (المستقبل)": "I will wait, You will wait, He/She/It will wait, We will wait, You will wait, They will wait" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: J'attends pas | EN: I don't wait (لا أنتظر)",
+                    "السؤال (Interrogation)": "FR: Attends-tu ? | EN: Do you wait? (هل تنتظر؟)",
+                    "الأمر (Impératif)": "FR: Attends ! | EN: Wait! (انتظر!)"
+                },
+                example: "مثال (FR): J'attends le bus. | (EN): I wait for the bus." 
+            },
+            { 
+                id: 42, category: "daily", group: "المجموعة الأولى", french: "Commencer", english: "To start / To begin", arabic: "بدأ / يبدأ", 
+                translations: { "العربية": "بدأ / يبدأ", "الفرنسية": "Commencer", "الإنجليزية": "To start" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je commence, Tu commences, Il/Elle commence, Nous commençons, Vous commencez, Ils/Elles commencent", 
+                    "Passé Composé (الماضي)": "J'ai commencé, Tu as commencé, Il a commencé, Nous avons commencé, Vous avez commencé, Ils ont commencé", 
+                    "Futur (المستقبل)": "Je commencerai, Tu commenceras, Il commencera, Nous commencerons, Vous commencerez, Ils commenceront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I start, You start, He/She/It starts, We start, You start, They start", 
+                    "Past Simple (الماضي البسيط)": "I started, You started, He/She/It started, We started, You started, They started", 
+                    "Future (المستقبل)": "I will start, You will start, He/She/It will start, We will start, You will start, They will start" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne commence pas | EN: I don't start (لا أبدأ)",
+                    "السؤال (Interrogation)": "FR: Commences-tu ? | EN: Do you start? (هل تبدأ؟)",
+                    "الأمر (Impératif)": "FR: Commence ! | EN: Start! (ابدأ!)"
+                },
+                example: "مثال (FR): Le film commence. | (EN): The movie starts." 
+            },
+            { 
+                id: 43, category: "daily", group: "المجموعة الأولى", french: "Finir", english: "To finish / To end", arabic: "أنهى / ينتهي", 
+                translations: { "العربية": "أنهى / ينتهي", "الفرنسية": "Finir", "الإنجليزية": "To finish" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je finis, Tu finis, Il/Elle finit, Nous finissons, Vous finissez, Ils/Elles finissent", 
+                    "Passé Composé (الماضي)": "J'ai fini, Tu as fini, Il a fini, Nous avons fini, Vous avez fini, Ils ont fini", 
+                    "Futur (المستقبل)": "Je finirai, Tu finiras, Il finira, Nous finirons, Vous finirez, Ils finiront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I finish, You finish, He/She/It finishes, We finish, You finish, They finish", 
+                    "Past Simple (الماضي البسيط)": "I finished, You finished, He/She/It finished, We finished, You finished, They finished", 
+                    "Future (المستقبل)": "I will finish, You will finish, He/She/It will finish, We will finish, You will finish, They will finish" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne finis pas | EN: I don't finish (لا أنهي)",
+                    "السؤال (Interrogation)": "FR: Finis-tu ? | EN: Do you finish? (هل تنهي؟)",
+                    "الأمر (Impératif)": "FR: Finis ! | EN: Finish! (أنهِ!)"
+                },
+                example: "مثال (FR): Je finis mon travail. | (EN): I finish my work." 
+            },
+            { 
+                id: 44, category: "daily", group: "المجموعة الأولى", french: "Aider", english: "To help", arabic: "ساعد / يساعد", 
+                translations: { "العربية": "ساعد / يساعد", "الفرنسية": "Aider", "الإنجليزية": "To help" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "J'aide, Tu aides, Il/Elle aide, Nous aidons, Vous aidez, Ils/Elles aident", 
+                    "Passé Composé (الماضي)": "J'ai aidé, Tu as aidé, Il a aidé, Nous avons aidé, Vous avez aidé, Ils ont aidé", 
+                    "Futur (المستقبل)": "J'aiderai, Tu aideras, Il aidera, Nous aiderons, Vous aiderez, Ils aideront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I help, You help, He/She/It helps, We help, You help, They help", 
+                    "Past Simple (الماضي البسيط)": "I helped, You helped, He/She/It helped, We helped, You helped, They helped", 
+                    "Future (المستقبل)": "I will help, You will help, He/She/It will help, We will help, You will help, They will help" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: J'aide pas | EN: I don't help (لا أساعد)",
+                    "السؤال (Interrogation)": "FR: Aides-tu ? | EN: Do you help? (هل تساعد؟)",
+                    "الأمر (Impératif)": "FR: Aide ! | EN: Help! (ساعد!)"
+                },
+                example: "مثال (FR): Je t'aide. | (EN): I help you." 
+            },
+            { 
+                id: 45, category: "daily", group: "المجموعة الأولى", french: "Donner", english: "To give", arabic: "أعطى / يعطي", 
+                translations: { "العربية": "أعطى / يعطي", "الفرنسية": "Donner", "الإنجليزية": "To give" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je donne, Tu donnes, Il/Elle donne, Nous donnons, Vous donnez, Ils/Elles donnent", 
+                    "Passé Composé (الماضي)": "J'ai donné, Tu as donné, Il a donné, Nous avons donné, Vous avez donné, Ils ont donné", 
+                    "Futur (المستقبل)": "Je donnerai, Tu donneras, Il donnera, Nous donnerons, Vous donnerez, Ils donneront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I give, You give, He/She/It gives, We give, You give, They give", 
+                    "Past Simple (الماضي البسيط)": "I gave, You gave, He/She/It gave, We gave, You gave, They gave", 
+                    "Future (المستقبل)": "I will give, You will give, He/She/It will give, We will give, You will give, They will give" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne donne pas | EN: I don't give (لا أعطي)",
+                    "السؤال (Interrogation)": "FR: Donnes-tu ? | EN: Do you give? (هل تعطي؟)",
+                    "الأمر (Impératif)": "FR: Donne ! | EN: Give! (أعطِ!)"
+                },
+                example: "مثال (FR): Il me donne un livre. | (EN): He gives me a book." 
+            },
+            { 
+                id: 46, category: "daily", group: "المجموعة الأولى", french: "Prendre", english: "To take", arabic: "أخذ / يأخذ", 
+                translations: { "العربية": "أخذ / يأخذ", "الفرنسية": "Prendre", "الإنجليزية": "To take" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je prends, Tu prends, Il/Elle prend, Nous prenons, Vous prenez, Ils/Elles prennent", 
+                    "Passé Composé (الماضي)": "J'ai pris, Tu as pris, Il a pris, Nous avons pris, Vous avez pris, Ils ont pris", 
+                    "Futur (المستقبل)": "Je prendrai, Tu prendras, Il prendra, Nous prendrons, Vous prendrez, Ils prendront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I take, You take, He/She/It takes, We take, You take, They take", 
+                    "Past Simple (الماضي البسيط)": "I took, You took, He/She/It took, We took, You took, They took", 
+                    "Future (المستقبل)": "I will take, You will take, He/She/It will take, We will take, You will take, They will take" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne prends pas | EN: I don't take (لا أخذ)",
+                    "السؤال (Interrogation)": "FR: Prends-tu ? | EN: Do you take? (هل تأخذ؟)",
+                    "الأمر (Impératif)": "FR: Prends ! | EN: Take! (خُذْ!)"
+                },
+                example: "مثال (FR): Je prends le café. | (EN): I take coffee." 
+            },
+            { 
+                id: 47, category: "daily", group: "المجموعة الأولى", french: "Mettre", english: "To put", arabic: "وضع / يضع", 
+                translations: { "العربية": "وضع / يضع", "الفرنسية": "Mettre", "الإنجليزية": "To put" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je mets, Tu mets, Il/Elle met, Nous mettons, Vous mettez, Ils/Elles mettent", 
+                    "Passé Composé (الماضي)": "J'ai mis, Tu as mis, Il a mis, Nous avons mis, Vous avez mis, Ils ont mis", 
+                    "Futur (المستقبل)": "Je mettrai, Tu mettras, Il mettra, Nous mettrons, Vous mettrez, Ils mettront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I put, You put, He/She/It puts, We put, You put, They put", 
+                    "Past Simple (الماضي البسيط)": "I put, You put, He/She/It put, We put, You put, They put", 
+                    "Future (المستقبل)": "I will put, You will put, He/She/It will put, We will put, You will put, They will put" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne mets pas | EN: I don't put (لا أضع)",
+                    "السؤال (Interrogation)": "FR: Mets-tu ? | EN: Do you put? (هل تضع؟)",
+                    "الأمر (Impératif)": "FR: Mets ! | EN: Put! (ضَعْ!)"
+                },
+                example: "مثال (FR): Il met son manteau. | (EN): He puts his coat." 
+            },
+            { 
+                id: 48, category: "daily", group: "المجموعة الأولى", french: "Porteur", english: "To wear / To carry", arabic: "ارتدى / يحمل", 
+                translations: { "العربية": "ارتدى / يحمل", "الفرنسية": "Porter", "الإنجليزية": "To wear" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je porte, Tu portes, Il/Elle porte, Nous portons, Vous portez, Ils/Elles portent", 
+                    "Passé Composé (الماضي)": "J'ai porté, Tu as porté, Il a porté, Nous avons porté, Vous avez porté, Ils ont porté", 
+                    "Futur (المستقبل)": "Je porterai, Tu porteras, Il portera, Nous porterons, Vous porterez, Ils porteront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I wear, You wear, He/She/It wears, We wear, You wear, They wear", 
+                    "Past Simple (الماضي البسيط)": "I wore, You wore, He/She/It wore, We wore, You wore, They wore", 
+                    "Future (المستقبل)": "I will wear, You will wear, He/She/It will wear, We will wear, You will wear, They will wear" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne porte pas | EN: I don't wear (لا أرتدي)",
+                    "السؤال (Interrogation)": "FR: Portes-tu ? | EN: Do you wear? (هل ترتدي؟)",
+                    "الأمر (Impératif)": "FR: Porte ! | EN: Wear! (ارتدِ!)"
+                },
+                example: "مثال (FR): Elle porte une robe. | (EN): She wears a dress." 
+            },
+            { 
+                id: 49, category: "mind", group: "المجموعة الأولى", french: "Changer", english: "To change", arabic: "غير / يغيّر", 
+                translations: { "العربية": "غير / يغيّر", "الفرنسية": "Changer", "الإنجليزية": "To change" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je change, Tu changes, Il/Elle change, Nous changeons, Vous changez, Ils/Elles changent", 
+                    "Passé Composé (الماضي)": "J'ai changé, Tu as changé, Il a changé, Nous avons changé, Vous avez changé, Ils ont changé", 
+                    "Futur (المستقبل)": "Je changerai, Tu changeras, Il changera, Nous changerons, Vous changerez, Ils changeront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I change, You change, He/She/It changes, We change, You change, They change", 
+                    "Past Simple (الماضي البسيط)": "I changed, You changed, He/She/It changed, We changed, You changed, They changed", 
+                    "Future (المستقبل)": "I will change, You will change, He/She/It will change, We will change, You will change, They will change" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne change pas | EN: I don't change (لا أغيّر)",
+                    "السؤال (Interrogation)": "FR: Changes-tu ? | EN: Do you change? (هل تغيّر؟)",
+                    "الأمر (Impératif)": "FR: Change ! | EN: Change! (غيِّر!)"
+                },
+                example: "مثال (FR): Il faut changer. | (EN): We must change." 
+            },
+            { 
+                id: 50, category: "daily", group: "المجموعة الأولى", french: "Nettoyer", english: "To clean", arabic: "نظف / ينظف", 
+                translations: { "العربية": "نظف / ينظف", "الفرنسية": "Nettoyer", "الإنجليزية": "To clean" }, 
+                conjugationFr: { 
+                    "Présent (المضارع)": "Je nettoie, Tu nettoies, Il/Elle nettoie, Nous nettoyons, Vous nettoyez, Ils/Elles nettoient", 
+                    "Passé Composé (الماضي)": "J'ai nettoyé, Tu as nettoyé, Il a nettoyé, Nous avons nettoyé, Vous avez nettoyé, Ils ont nettoyé", 
+                    "Futur (المستقبل)": "Je nettoierai, Tu nettoieras, Il nettoiera, Nous nettoierons, Vous nettoierez, Ils nettoieront" 
+                }, 
+                conjugationEn: { 
+                    "Present (المضارع)": "I clean, You clean, He/She/It cleans, We clean, You clean, They clean", 
+                    "Past Simple (الماضي البسيط)": "I cleaned, You cleaned, He/She/It cleaned, We cleaned, You cleaned, They cleaned", 
+                    "Future (المستقبل)": "I will clean, You will clean, He/She/It will clean, We will clean, You will clean, They will clean" 
+                }, 
+                forms: {
+                    "النفي (Négation)": "FR: Je ne nettoie pas | EN: I don't clean (لا أنظف)",
+                    "السؤال (Interrogation)": "FR: Nettoies-tu ? | EN: Do you clean? (هل تنظف؟)",
+                    "الأمر (Impératif)": "FR: Nettoie ! | EN: Clean! (نظف!)"
+                },
+                example: "مثال (FR): Je nettoie la chambre. | (EN): I clean the room." 
+            }
+        ];
+
+        let currentCategory = 'all';
+        let quizScoreCount = 0;
+        let typingScoreCount = 0;
+        let currentQuizVerb = null;
+        let currentTypingVerb = null;
+
+        window.onload = function() {
+            renderVerbs(verbsDatabase);
+        };
+
+        function switchSection(sectionId, btnElement) {
+            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(sectionId + 'Section').classList.add('active');
+            btnElement.classList.add('active');
+
+            if (sectionId === 'quiz') {
+                loadNewQuestion();
+            } else if (sectionId === 'typing') {
+                loadNewTypingChallenge();
+            }
+        }
+
+        function renderVerbs(list) {
+            const grid = document.getElementById('verbGrid');
+            grid.innerHTML = '';
+            
+            if (list.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-muted);">عذراً، لم يتم العثور على نتائج مطابقة لبحثك.</p>';
+                return;
+            }
+
+            list.forEach(verb => {
+                const card = document.createElement('div');
+                card.className = 'verb-card';
+                card.onclick = () => openVerbModal(verb);
+                
+                card.innerHTML = `
+                    <div class="card-top">
+                        <span class="verb-name-fr">${verb.french}</span>
+                        <span class="group-tag">${verb.group}</span>
+                    </div>
+                    <div class="card-details-preview">
+                        <div>EN: <span>${verb.english}</span></div>
+                        <div>AR: <span>${verb.arabic}</span></div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function setCategory(cat, btnElement) {
+            currentCategory = cat;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            filterVerbs();
+        }
+
+        function filterVerbs() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            const filtered = verbsDatabase.filter(verb => {
+                const matchesCategory = (currentCategory === 'all' || verb.category === currentCategory);
+                const matchesQuery = query === '' || 
+                    verb.french.toLowerCase().includes(query) || 
+                    verb.english.toLowerCase().includes(query) || 
+                    verb.arabic.toLowerCase().includes(query);
+                
+                return matchesCategory && matchesQuery;
+            });
+
+            renderVerbs(filtered);
+        }
+
+        function openVerbModal(verb) {
+            document.getElementById('modalTitle').innerText = `${verb.french} - ${verb.arabic}`;
+            document.getElementById('modalBadge').innerText = verb.group;
+
+            const transBox = document.getElementById('modalTranslations');
+            transBox.innerHTML = `
+                <div class="info-row"><span>الفرنسية:</span> <strong>${verb.translations["الفرنسية"]}</strong></div>
+                <div class="info-row"><span>الإنجليزية:</span> <strong>${verb.translations["الإنجليزية"]}</strong></div>
+                <div class="info-row"><span>العربية:</span> <strong>${verb.translations["العربية"]}</strong></div>
+            `;
+
+            const frBox = document.getElementById('modalConjugationFr');
+            let frHtml = '<div style="font-weight: 600; color: var(--accent); margin-bottom: 6px;">تصريف الفرنسية (Conjugaison Française):</div>';
+            for (let [tense, conj] of Object.entries(verb.conjugationFr)) {
+                frHtml += `<div class="info-row"><span>${tense}</span> <strong>${conj}</strong></div>`;
+            }
+            frBox.innerHTML = frHtml;
+
+            const enBox = document.getElementById('modalConjugationEn');
+            let enHtml = '<div style="font-weight: 600; color: var(--accent); margin-bottom: 6px;">تصريف الإنجليزية (English Conjugation):</div>';
+            for (let [tense, conj] of Object.entries(verb.conjugationEn)) {
+                enHtml += `<div class="info-row"><span>${tense}</span> <strong>${conj}</strong></div>`;
+            }
+            enBox.innerHTML = enHtml;
+
+            const formsBox = document.getElementById('modalForms');
+            let formsHtml = '';
+            for (let [formName, formVal] of Object.entries(verb.forms)) {
+                formsHtml += `<div class="info-row"><span>${formName}</span> <strong>${formVal}</strong></div>`;
+            }
+            formsBox.innerHTML = formsHtml;
+
+            document.getElementById('modalExample').innerText = verb.example;
+            document.getElementById('verbModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('verbModal').classList.remove('active');
+        }
+
+        function closeModalOnOutside(event) {
+            if (event.target.id === 'verbModal') {
+                closeModal();
+            }
+        }
+
+        function loadNewQuestion() {
+            document.getElementById('nextQuizBtn').style.display = 'none';
+            const randomIndex = Math.floor(Math.random() * verbsDatabase.length);
+            currentQuizVerb = verbsDatabase[randomIndex];
+
+            document.getElementById('quizQuestion').innerText = `ما هي الترجمة الصحيحة للفعل الفرنسي: "${currentQuizVerb.french}"؟`;
+
+            let options = [currentQuizVerb.arabic];
+            while (options.length < 3) {
+                const randVerb = verbsDatabase[Math.floor(Math.random() * verbsDatabase.length)];
+                if (!options.includes(randVerb.arabic)) {
+                    options.push(randVerb.arabic);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkQuizAnswer(opt, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedOption, btnElement) {
+            const allBtns = document.querySelectorAll('.quiz-option-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selectedOption === currentQuizVerb.arabic) {
+                btnElement.classList.add('correct');
+                quizScoreCount += 10;
+                document.getElementById('quizScore').innerText = `النقاط: ${quizScoreCount}`;
+            } else {
+                btnElement.classList.add('wrong');
+                allBtns.forEach(b => {
+                    if (b.innerText === currentQuizVerb.arabic) b.classList.add('correct');
+                });
+            }
+            document.getElementById('nextQuizBtn').style.display = 'inline-block';
+        }
+
+        function loadNewTypingChallenge() {
+            document.getElementById('nextTypingBtn').style.display = 'none';
+            document.getElementById('typingInput').value = '';
+            document.getElementById('typingInput').disabled = false;
+            document.getElementById('typingFeedback').innerText = '';
+            
+            const randomIndex = Math.floor(Math.random() * verbsDatabase.length);
+            currentTypingVerb = verbsDatabase[randomIndex];
+            document.getElementById('typingPrompt').innerText = `اكتب الفعل باللغة الفرنسية لـ: "${currentTypingVerb.arabic}" (${currentTypingVerb.english})`;
+            document.getElementById('typingInput').focus();
+        }
+
+        function checkTyping(event) {
+            if (event.key === 'Enter') {
+                const userVal = document.getElementById('typingInput').value.trim();
+                const feedback = document.getElementById('typingFeedback');
+                
+                if (userVal.toLowerCase() === currentTypingVerb.french.toLowerCase()) {
+                    feedback.style.color = '#34d399';
+                    feedback.innerText = 'إجابة صحيحة وصناعة رائعة!';
+                    typingScoreCount += 15;
+                    document.getElementById('typingScore').innerText = `النقاط الإملائية: ${typingScoreCount}`;
+                    document.getElementById('typingInput').disabled = true;
+                    document.getElementById('nextTypingBtn').style.display = 'inline-block';
+                } else {
+                    feedback.style.color = '#f87171';
+                    feedback.innerText = `خطأ! الإجابة الصحيحة هي: ${currentTypingVerb.french}`;
+                    document.getElementById('typingInput').disabled = true;
+                    document.getElementById('nextTypingBtn').style.display = 'inline-block';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
